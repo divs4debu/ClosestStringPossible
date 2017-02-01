@@ -4,6 +4,7 @@
 #include <fstream>
 #include <unordered_set>
 #include <vector>
+#include <algorithm>
 
 #define LETTERS  "abcdefghijklmnopqrstuvwxyz"
 #define R(i) (get<1>(split[i]))
@@ -122,6 +123,38 @@ vector<string> known(const unordered_set<string>& set){
     return know;
 }
 
+bool is_anagram(string original, string word){
+    sort(original.begin(), original.end());
+    sort(word.begin(), word.end());
+    return original==word;
+}
+
+void sort_anagram(vector<string> all_correct, string input, vector<string>& top){
+    for (string temp : all_correct){
+        if(is_anagram(input, temp))
+            top.push_back(temp);        
+    }
+}
+
+
+void sort_rest(vector<string> all_correct, string input, vector<string>& top){
+    for (string temp : all_correct){
+        if(top.size()>10)   return;
+            if((!is_anagram(temp,input)) && temp.size() == input.size())
+                top.push_back(temp);
+    }
+    for (string temp : all_correct){
+        if(top.size()>10)   return;
+            if((!is_anagram(temp,input)) && temp.size() < input.size())
+                top.push_back(temp);
+    }
+    for (string temp : all_correct){
+        if(top.size()>10)   return;
+            if((!is_anagram(temp,input)) && temp.size() > input.size())
+                top.push_back(temp);
+    }
+}
+
 
 int main() {
     
@@ -129,12 +162,23 @@ int main() {
 
     string choice;
     cin >> choice;
-    //unordered_set<string> possibilities = edits1(choice);
+    vector<string>top;
+    vector<string> know = known(edits1(choice));
     
-    vector<string> know = known(edits2(choice));
-    for (int i=0; i<know.size(); i++){
-        cout<<know[i]<<endl;
+    
+    sort_anagram(know, choice,top);
+    if(top.size()<11)
+        sort_rest(know, choice,top);
+    if(top.size()<11){
+        know.clear();
+        know = known(edits2(choice));
+        if(top.size()<11)
+            sort_rest(know, choice,top);
     }
+        
+    int i =0;
+    for(string& value: top)
+        cout<<"tops:"<<++i<<'\t'<<value<<endl;
 
     return 0;
 }
