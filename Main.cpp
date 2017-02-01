@@ -4,7 +4,7 @@
 #include <fstream>
 #include <unordered_set>
 #include <vector>
-#include <algorithm>
+#include "utils.cpp"
 
 #define LETTERS  "abcdefghijklmnopqrstuvwxyz"
 #define R(i) (get<1>(split[i]))
@@ -31,13 +31,6 @@ unordered_set<string>  create_dictionary(const char* path) {
         file.close();
     }
     return set;
-}
-
-
-void print(const unordered_set<string>& set) {
-    for (auto&x : set) {
-        cout << x << endl;
-    }
 }
 
 unordered_set<string> edits1(string word) {
@@ -104,7 +97,6 @@ unordered_set<string> edits2(string word){
         }
         temp.clear();
     }
-    //print(edt2);
     return edt2;
 }
 
@@ -123,45 +115,16 @@ vector<string> known(const unordered_set<string>& set){
     return know;
 }
 
-bool is_anagram(string original, string word){
-    sort(original.begin(), original.end());
-    sort(word.begin(), word.end());
-    return original==word;
-}
-
-void sort_anagram(vector<string> all_correct, string input, vector<string>& top){
-    for (string temp : all_correct){
-        if(is_anagram(input, temp))
-            top.push_back(temp);        
-    }
-}
-
-
-void sort_rest(vector<string> all_correct, string input, vector<string>& top){
-    for (string temp : all_correct){
-        if(top.size()>10)   return;
-            if((!is_anagram(temp,input)) && temp.size() == input.size())
-                top.push_back(temp);
-    }
-    for (string temp : all_correct){
-        if(top.size()>10)   return;
-            if((!is_anagram(temp,input)) && temp.size() < input.size())
-                top.push_back(temp);
-    }
-    for (string temp : all_correct){
-        if(top.size()>10)   return;
-            if((!is_anagram(temp,input)) && temp.size() > input.size())
-                top.push_back(temp);
-    }
-}
-
-
-int main() {
+int main(int argc, char **argv) {
     
-    myset =  create_dictionary("words.txt");
-
+    myset =  create_dictionary("Database/words.txt");
     string choice;
-    cin >> choice;
+    if(argc <2){
+        cout<<"Enter the Choice"<<endl;
+        cin >> choice;
+    }
+    else
+        choice = argv[1];
     vector<string>top;
     vector<string> know = known(edits1(choice));
     
