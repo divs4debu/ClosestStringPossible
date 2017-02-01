@@ -10,20 +10,28 @@
 #define L(i) (get<0>(split[i]))
 
 using namespace std;
+//Global Variable
 unordered_set<string> myset;
 
-void  create_dictionary(unordered_set<string>&  set, ifstream& file) {
+unordered_set<string>  create_dictionary(const char* path) {
     string line;
+    ifstream file;
+    unordered_set<string> set;
+    
     try {
-        file.open("words.txt");
+        file.open(path);
     }
     catch (ifstream::failure e) {
         cerr << "Exception opening the file" << endl;
     }
-    while (getline(file, line))
-        set.insert(line);
-    file.close();
+    if (file){
+        while (getline(file, line))
+            set.insert(line);
+        file.close();
+    }
+    return set;
 }
+
 
 void print(const unordered_set<string>& set) {
     for (auto&x : set) {
@@ -34,54 +42,49 @@ void print(const unordered_set<string>& set) {
 unordered_set<string> edits1(string word) {
 
     int size = word.length();
-
-    string deletes[size + 1];
-    string transposes[size + 1];
     tuple<string, string> split [size + 1];
-    vector<string> replaces;
-    vector<string> inserts;
     unordered_set<string> single_edits;
-
+    
+    // Split the string 
     for (int i = 0 ; i < size + 1; i++) {
         split[i] = make_tuple(word.substr(0, i), word.substr(i, size));
     }
-
+    //find all possible strings with just one deletion
     for (int i = 0; i < size + 1; i++) {
         string temp = R(i);
         if (temp != "") {
-            deletes[i] = L(i) + temp.substr(1, temp.size());
             single_edits.insert(L(i) + temp.substr(1, temp.size()));
         }
     }
-
+    
+    //find all possible strings with one transpose 
     for (int i = 0; i < size + 1; i++) {
         string temp = R(i);
         int length = temp.size();
         if (length > 1) {
-            transposes[i] = L(i) + temp[1] + temp[0] + temp.substr(2, length);
             single_edits.insert(L(i) + temp[1] + temp[0] + temp.substr(2, length));
         }
     }
-
+    
+    //find all strings with one replaces
     for (int i = 0; i < size + 1; i++) {
         string left_temp = L(i);
         if (R(i) != "") {
             string right_temp = R(i).substr(1, R(i).size());
             for (char c : LETTERS) {
                 if (c != '\0') {
-                    replaces.push_back(left_temp + c + right_temp );
                     single_edits.insert(left_temp + c + right_temp );
                 }
             }
         }
     }
-
+    
+    //find all strings with one insert
     for (int i = 0; i < size + 1; i++) {
         string left_temp = L(i);
         string right_temp = R(i);
         for (char c : LETTERS) {
             if (c != '\0') {
-                inserts.push_back(left_temp + c + right_temp);
                 single_edits.insert(left_temp + c + right_temp);
             }
         }
@@ -90,7 +93,12 @@ unordered_set<string> edits1(string word) {
     return single_edits;
 }
 
-
+/**
+ * "known" function searches the dictionary and separates out the strings in the set that are present in the dictionary.
+ * function parses through the set and sees weather they exist in the dictionary.
+ * @param   : unordered_set&
+ * @return  : vector<string>
+ */
 vector<string> known(const unordered_set<string>& set){
     vector<string> know;
     for(auto& value : set){
@@ -102,14 +110,12 @@ vector<string> known(const unordered_set<string>& set){
 
 
 int main() {
-    ifstream myfile;
     
-    create_dictionary(myset, myfile);
+    myset =  create_dictionary("words.txt");
 
     string choice;
     cin >> choice;
     unordered_set<string> possibilities = edits1(choice);
-    //print(myset);
     vector<string> know = known(possibilities);
     for (int i=0; i<know.size(); i++){
         cout<<know[i]<<endl;
