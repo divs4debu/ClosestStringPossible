@@ -93,6 +93,20 @@ unordered_set<string> edits1(string word) {
     return single_edits;
 }
 
+unordered_set<string> edits2(string word){
+    unordered_set<string> edt1 = edits1(word);
+    unordered_set<string> edt2;
+    for(string value : edt1){
+        unordered_set<string> temp = edits1(value);
+        for(string value2 : temp){
+            edt2.insert(value2);
+        }
+        temp.clear();
+    }
+    //print(edt2);
+    return edt2;
+}
+
 /**
  * "known" function searches the dictionary and separates out the strings in the set that are present in the dictionary.
  * function parses through the set and sees weather they exist in the dictionary.
@@ -115,8 +129,9 @@ int main() {
 
     string choice;
     cin >> choice;
-    unordered_set<string> possibilities = edits1(choice);
-    vector<string> know = known(possibilities);
+    //unordered_set<string> possibilities = edits1(choice);
+    
+    vector<string> know = known(edits2(choice));
     for (int i=0; i<know.size(); i++){
         cout<<know[i]<<endl;
     }
